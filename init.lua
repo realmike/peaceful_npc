@@ -359,11 +359,11 @@ use_mesecons = false
 
 function npc_spawner(pos)
   	local MAX_NPC = 10
-	local count = table.getn(minetest.env:get_objects_inside_radius(pos, 100))
-	if count == nil then
-	count = 0
+	local found = table.getn(minetest.env:get_objects_inside_radius(pos, 100))
+	if found == nil then
+	found = 0
 
-	if count <= MAX_NPC then
+	if found <= MAX_NPC then
 		minetest.env:add_entity({x=pos.x+math.random(-1,1),y=pos.y+math.random(2,3),z=pos.z+math.random(-1,1)}, ("peaceful_npc:npc"))
 		end
 	end
@@ -407,10 +407,10 @@ end
 
 
 --use pilzadam's spawning algo
---use pilzadam's spawning algo
+--[[
 npcs = {}
 npcs.spawning_mobs = {}
-	function npcs:register_spawn(name, nodes, max_light, min_light, chance, mobs_per_30_block_radius, max_height)
+	function npcs:register_spawn(name, nodes, max_light, min_light, chance, mobs_per_100_block_radius, max_height)
 		npcs.spawning_mobs[name] = true
 		minetest.register_abm({
 		nodenames = nodes,
@@ -460,9 +460,9 @@ npcs.spawning_mobs = {}
 			minetest.env:add_entity(pos, name)
 		end
 	})
-end
+end]]--
 
-npcs:register_spawn("peaceful_npc:npc", {"default:dirt_with_grass", "default:wood"}, 16, -1, 500, 15, 31000)
+npcs:register_spawn("peaceful_npc:npc", {"default:dirt_with_grass", "default:wood", "default:sand"}, 16, -1, 500, 15, 31000)
 
 
 minetest.register_craft({
