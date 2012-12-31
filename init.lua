@@ -100,7 +100,7 @@ NPC_ENTITY.on_activate = function(self)
 	self.player_anim = ANIM_STAND
 	self.object:setacceleration({x=0,y=-10,z=0})
 	self.state = 1
-	self.object:set_hp(20)
+	self.object:set_hp(25)
 end
 
 NPC_ENTITY.on_punch = function(self, puncher)
@@ -112,13 +112,14 @@ NPC_ENTITY.on_punch = function(self, puncher)
 			end
 		end
 	end
+
 	if self.state ~= 3 then
 		self.state = 3
 		self.attacker = puncher:get_player_name()
 	end
 
 	if self.object:get_hp() == 0 then
-	    local obj = minetest.env:add_item(self.object:getpos(), "default:mese_crystal_fragment")
+	    local obj = minetest.env:add_item(self.object:getpos(), "default:mese_crystal")
 	end
 end
 
@@ -147,6 +148,7 @@ NPC_ENTITY.on_step = function(self, dtime)
 		end
 	end
 	]]--
+
 	--set npc to hostile in night, and revert npc back to peaceful in daylight
 	if minetest.env:get_timeofday() >= 0 and minetest.env:get_timeofday() < 0.25 and self.state ~= 4 then
 		self.state = 4
@@ -327,7 +329,6 @@ NPC_ENTITY.on_step = function(self, dtime)
 			end
 		end
 	end
-
 end
 
 minetest.register_entity("peaceful_npc:npc", NPC_ENTITY)
@@ -357,24 +358,16 @@ minetest.register_node("peaceful_npc:spawnegg", {
 use_mesecons = false
 
 function npc_spawner(pos)
-minetest.env:add_entity({x=pos.x+math.random(-1,1),y=pos.y+math.random(2,3),z=pos.z+math.random(-1,1)}, "peaceful_npc:npc")
-	local MAX_NPC = 3
-	local NPC_FOUND = function(table_count)
-					end
+  	local MAX_NPC = 10
+	local count = table.getn(minetest.env:get_objects_inside_radius(pos, 100))
+	if count == nil then
+	count = 0
 
-	function table_count(tt, item)
-		local count = minetest.env:get_objects_inside_radius(pos, 20)
-		for ii,xx in pairs(tt) do
-			if item == xx then count = count + 1 end
-			end
-		return count
-	end
-
-
-	if NPC_FOUND>MAX_NPC then
-		action_off = minetest.env:add_entity({x=pos.x+math.random(-1,1),y=pos.y+math.random(2,3),z=pos.z+math.random(-1,1)}, "peaceful_npc:npc")
+	if count <= MAX_NPC then
+		minetest.env:add_entity({x=pos.x+math.random(-1,1),y=pos.y+math.random(2,3),z=pos.z+math.random(-1,1)}, ("peaceful_npc:npc"))
 		end
 	end
+end
 
 	if use_mesecons == true then
 		minetest.register_node("peaceful_npc:npc_spawner", {
@@ -403,8 +396,8 @@ if use_mesecons == false then
     })
     minetest.register_abm({
         nodenames = {"peaceful_npc:npc_spawner"},
-        interval = 5.0,
-        chance = 1,
+        interval = 20.0,
+        chance = 5,
         action = function(pos)
             npc_spawner(pos)
         end,
@@ -412,19 +405,8 @@ if use_mesecons == false then
 end
 
 
---[[Stops Spawn Function
-function npc_stopper(pos)
-	local count = minetest.env:get_objects_inside_radius(pos, 20)
-	local MAX_NPC = 3
 
-	if count>MAX_NPC then
-		action_off = function() npc_spawner(pos)
-		end
-	end
-end]]--
-
---[[
-This causes mobs to cluster together DONTA JLAFGJKAS USE IRT
+--use pilzadam's spawning algo
 --use pilzadam's spawning algo
 npcs = {}
 npcs.spawning_mobs = {}
@@ -461,7 +443,7 @@ npcs.spawning_mobs = {}
 			end
 
 			local count = 0
-			for _,obj in pairs(minetest.env:get_luaentities_inside_radius(pos, 30)) do
+			for _,obj in pairs(minetest.env:get_objects_inside_radius(pos, 30)) do
 				if obj:is_player() then
 					return
 				elseif obj:get_luaentity() and obj:get_luaentity().name == name then
@@ -480,8 +462,8 @@ npcs.spawning_mobs = {}
 	})
 end
 
-npcs:register_spawn("peaceful_npc:npc", {"default:dirt_with_grass"}, 16, -1, 500, 10, 31000)
-]]--
+npcs:register_spawn("peaceful_npc:npc", {"default:dirt_with_grass", "default:wood"}, 16, -1, 500, 15, 31000)
+
 
 minetest.register_craft({
 	output = 'peaceful_npc:npc_spawner',
@@ -489,15 +471,6 @@ minetest.register_craft({
 		{'default:mese_block', 'default:glass', 'default:mese_block'},
 		{'default:glass', 'default:mese_crystal', 'default:glass'},
 		{'default:mese_block', 'default:glass', 'default:mese_block'},
-	}
-})
-
-minetest.register_craft({
-	output = 'peaceful_npc:npc_stopper',
-	recipe = {
-		{'default:mese_crystal', 'default:glass', 'default:mese_crystal'},
-		{'default:glass', 'default:mese_crystal_fragment', 'default:glass'},
-		{'default:mese_crystal', 'default:glass', 'default:mese_crystal'},
 	}
 })
 
