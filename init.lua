@@ -139,18 +139,19 @@ NPC_ENTITY.on_step = function(self, dtime)
 
 	self.time_passed = self.time_passed + dtime
 
-		if self.time_passed >= 20 then
-			self.object:remove()
+	if self.time_passed >= 20 then
+		self.object:remove()
 	else
 		if current_node.name == "default:water_source" or
-		current_node.name == "default:water_flowing" or
-		current_node.name == "default:lava_source" or
-			current_node.name == "default:lava_flowing"then
-		self.time_passed =  self.time_passed + dtime
+			current_node.name == "default:water_flowing" or
+			current_node.name == "default:lava_source" or
+			current_node.name == "default:lava_flowing"
+		then
+			self.time_passed =  self.time_passed + dtime
 		else
-		self.time_passed = 0
+			self.time_passed = 0
+		end
 	end
-end
 
 	--collision detection prealpha
 	--[[
@@ -391,20 +392,20 @@ function npc_spawner(pos)
 	end
 end
 
-	if use_mesecons == true then
-		minetest.register_node("peaceful_npc:npc_spawner", {
-			description = "NPC Portal",
-			drawtype = "glasslike",
-			groups = {snappy=1,choppy=2,oddly_breakable_by_hand=2,flammable=3,wood=1},
-			sounds = default.node_sound_glass_defaults(),
-			tiles = {"peaceful_npc_spawner.png"},
-			sunlight_propagates = true,
-			paramtype = "light",
-			mesecons = {effector = {
-				action_on = npc_spawner
-			}}
-		})
-	end
+if use_mesecons == true then
+	minetest.register_node("peaceful_npc:npc_spawner", {
+		description = "NPC Portal",
+		drawtype = "glasslike",
+		groups = {snappy=1,choppy=2,oddly_breakable_by_hand=2,flammable=3,wood=1},
+		sounds = default.node_sound_glass_defaults(),
+		tiles = {"peaceful_npc_spawner.png"},
+		sunlight_propagates = true,
+		paramtype = "light",
+		mesecons = {effector = {
+			action_on = npc_spawner
+		}}
+	})
+end
 
 if use_mesecons == false then
     minetest.register_node("peaceful_npc:npc_spawner", {
@@ -431,9 +432,9 @@ end
 --use pilzadam's spawning algo
 npcs = {}
 npcs.spawning_mobs = {}
-	function npcs:register_spawn(name, nodes, max_light, min_light, chance, mobs_per_100_block_radius, max_height)
-		npcs.spawning_mobs[name] = true
-		minetest.register_abm({
+function npcs:register_spawn(name, nodes, max_light, min_light, chance, mobs_per_100_block_radius, max_height)
+	npcs.spawning_mobs[name] = true
+	minetest.register_abm({
 		nodenames = nodes,
 		neighbors = nodes,
 		interval = 240,
