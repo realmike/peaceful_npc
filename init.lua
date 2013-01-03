@@ -100,7 +100,7 @@ NPC_ENTITY.on_activate = function(self)
 	self.player_anim = ANIM_STAND
 	self.object:setacceleration({x=0,y=-10,z=0})
 	self.state = 1
-	self.object:set_hp(25)
+	self.object:set_hp(40)
 end
 
 NPC_ENTITY.on_punch = function(self, puncher)
@@ -139,11 +139,13 @@ NPC_ENTITY.on_step = function(self, dtime)
 
 	self.time_passed = self.time_passed + dtime
 
-		if self.time_passed >= 60 then
+		if self.time_passed >= 20 then
 			self.object:remove()
 	else
 		if current_node.name == "default:water_source" or
-			current_node.name == "default:water_flowing"then
+		current_node.name == "default:water_flowing" or
+		current_node.name == "default:lava_source" or
+			current_node.name == "default:lava_flowing"then
 		self.time_passed =  self.time_passed + dtime
 		else
 		self.time_passed = 0
@@ -378,7 +380,7 @@ minetest.register_node("peaceful_npc:spawnegg", {
 use_mesecons = false
 
 function npc_spawner(pos)
-  	local MAX_NPC = 10
+  	local MAX_NPC = 5
 	local found = table.getn(minetest.env:get_objects_inside_radius(pos, 100))
 	if found == nil then
 	found = 0
@@ -429,12 +431,12 @@ end
 --use pilzadam's spawning algo
 npcs = {}
 npcs.spawning_mobs = {}
-	function npcs:register_spawn(name, nodes, max_light, min_light, chance, mobs_per_30_block_radius, max_height)
+	function npcs:register_spawn(name, nodes, max_light, min_light, chance, mobs_per_100_block_radius, max_height)
 		npcs.spawning_mobs[name] = true
 		minetest.register_abm({
 		nodenames = nodes,
 		neighbors = nodes,
-		interval = 60,
+		interval = 240,
 		chance = chance,
 		action = function(pos, node)
 			if not npcs.spawning_mobs[name] then
@@ -462,18 +464,18 @@ npcs.spawning_mobs = {}
 			end
 
 			local count = 0
-			if mobs_per_30_block_radius == nil then
-				mobs_per_30_block_radius = 0
+			if mobs_per_100_block_radius == nil then
+				mobs_per_100_block_radius = 0
 			end
 
-			for _,obj in pairs(minetest.env:get_objects_inside_radius(pos, 30)) do
+			for _,obj in pairs(minetest.env:get_objects_inside_radius(pos, 100)) do
 				if obj:is_player() then
 					return
 				elseif obj:get_luaentity() and obj:get_luaentity().name == name then
 					count = count+1
 				end
 			end
-			if count > mobs_per_30_block_radius then
+			if count > mobs_per_100_block_radius then
 				return
 			end
 
@@ -485,7 +487,7 @@ npcs.spawning_mobs = {}
 	})
 end
 
-npcs:register_spawn("peaceful_npc:npc", {"default:dirt_with_grass", "default:wood", "default:sand", "default:desert_sand"}, 16, -1, 500, 1, 31000)
+npcs:register_spawn("peaceful_npc:npc", {"default:dirt_with_grass", "default:sand", "default:desert_sand", "default:desert_stone", "default:stone"}, 16, -1, 500, 4, 31000)
 
 
 minetest.register_craft({
